@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>帳號管理：AI 環節診斷室</title>
+<link rel="icon" href="assets/xia-avatar.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body data-page="account">
+<div id="banner"></div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="assets/xia-avatar.svg" alt="夏以甯">AI 環節診斷室</a>
+    <nav class="nav">
+      <a href="index.html#works">作品牆</a>
+      <a href="account.html" class="active">帳號管理</a>
+      <a href="inbox.html">我的收件夾</a>
+      <span id="auth-area"></span>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap page-title"><h1>帳號管理</h1></div>
+
+<main class="wrap" id="account-main">
+  <div class="card">
+    <h2>基本資料</h2>
+    <div class="field">
+      <label for="acc-email">Email（由 Google 登入自動帶入）</label>
+      <input id="acc-email" type="text" disabled>
+    </div>
+    <div class="field">
+      <label for="acc-name">顯示名稱</label>
+      <input id="acc-name" type="text" maxlength="50">
+      <div class="hint">需求單通知與討論串會用這個名稱。</div>
+    </div>
+    <button class="btn btn-primary btn-small" id="btn-save-profile" type="button">儲存基本資料</button>
+    <div class="form-msg" id="profile-msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>NVIDIA API Key</h2>
+    <div class="field">
+      <label for="acc-key">你的專屬金鑰（與夏以甯對話使用，僅你自己的額度）</label>
+      <input id="acc-key" type="password" autocomplete="off">
+      <div class="hint">
+        到 <a href="https://build.nvidia.com/" target="_blank" rel="noopener">build.nvidia.com</a> 免費註冊即可產生金鑰（nvapi- 開頭）。
+        金鑰只儲存在本站主機，頁面上只顯示尾碼；清空欄位按儲存即可刪除金鑰。
+      </div>
+    </div>
+    <button class="btn btn-primary btn-small" id="btn-save-key" type="button">儲存金鑰</button>
+    <div class="form-msg" id="key-msg"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>AI 環節診斷室：讓夏以甯陪你盤點工作流</span>
+    <span class="author-credit">製作者：黃政文</span>
+  </div>
+</footer>
+
+<div id="notice"></div>
+<script src="assets/app.js"></script>
+<script src="assets/chat.js"></script>
+</body>
+</html>

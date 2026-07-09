@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="64" fill="url(#bg)"/>
+  <!-- hair back -->
+  <path d="M28 62c0-24 16-38 36-38s36 14 36 38v20c0 6-5 8-8 8H36c-3 0-8-2-8-8z" fill="#2f3a45"/>
+  <!-- face -->
+  <circle cx="64" cy="62" r="26" fill="#ffe8d6"/>
+  <!-- fringe -->
+  <path d="M38 58c2-18 12-28 26-28s24 10 26 28c-6-8-12-10-16-10 2 2 3 4 3 6-8-4-24-4-33 2-2-2-4-1-6 2z" fill="#3b4754"/>
+  <!-- eyes -->
+  <ellipse cx="54" cy="64" rx="3.4" ry="4.6" fill="#233038"/>
+  <ellipse cx="74" cy="64" rx="3.4" ry="4.6" fill="#233038"/>
+  <circle cx="55" cy="62.5" r="1.2" fill="#fff"/>
+  <circle cx="75" cy="62.5" r="1.2" fill="#fff"/>
+  <!-- blush -->
+  <ellipse cx="48" cy="72" rx="4.5" ry="2.5" fill="#f9b8a0" opacity="0.6"/>
+  <ellipse cx="80" cy="72" rx="4.5" ry="2.5" fill="#f9b8a0" opacity="0.6"/>
+  <!-- smile -->
+  <path d="M58 76c3 3.4 9 3.4 12 0" stroke="#c2654a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- collar -->
+  <path d="M40 106c4-12 14-18 24-18s20 6 24 18z" fill="#ffffff"/>
+  <path d="M58 90l6 8 6-8z" fill="#0f766e"/>
+</svg>
