@@ -154,6 +154,24 @@
 
   // ---------- 頁面邏輯 ----------
 
+  // 只有從作者本機（localhost）開作品牆，地端工具才顯示「啟動」；公開站退化成純展示徽章
+  var IS_LOCALHOST = ["localhost", "127.0.0.1", "::1"].indexOf(location.hostname) >= 0;
+
+  async function launchLocal(id, btn) {
+    var label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "啟動中…";
+    try {
+      await api("/api/works/" + id + "/launch", { method: "POST" });
+      notice("已在本機啟動這個工具。");
+    } catch (e) {
+      notice("啟動失敗：" + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  }
+
   async function loadWorks() {
     var grid = el("works-grid");
     if (!grid) return;
@@ -165,21 +183,32 @@
       }
       grid.innerHTML = data.works.map(function (w) {
         var tags = (w.tags || []).map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("");
-        var badge = w.tailscale_only
-          ? '<span class="badge-ts">僅限' + escapeHtml(w.company || "特定公司") + '專屬帳號（Tailscale）連入</span>'
-          : "";
         var cover = w.cover
           ? '<img class="work-cover" src="' + escapeHtml(assetUrl(w.cover)) + '" alt="" loading="lazy">'
           : "";
+        var action;
+        if (w.kind === "local") {
+          action = '<span class="badge-local">本地桌面工具</span>' + (IS_LOCALHOST
+            ? '<button class="work-launch" type="button" data-id="' + escapeHtml(w.id) + '">啟動工具 →</button>'
+            : '<span class="work-local-hint">限作者本機啟動</span>');
+        } else {
+          var badge = w.tailscale_only
+            ? '<span class="badge-ts">僅限' + escapeHtml(w.company || "特定公司") + '專屬帳號（Tailscale）連入</span>'
+            : "";
+          action = badge +
+            '<a href="' + escapeHtml(w.url) + '" target="_blank" rel="noopener">前往作品 →</a>';
+        }
         return (
           '<div class="work-card">' + cover +
           "<h3>" + escapeHtml(w.title) + "</h3>" +
           "<p>" + escapeHtml(w.desc || "") + "</p>" +
-          '<div class="tag-row">' + tags + "</div>" + badge +
-          '<a href="' + escapeHtml(w.url) + '" target="_blank" rel="noopener">前往作品 →</a>' +
+          '<div class="tag-row">' + tags + "</div>" + action +
           "</div>"
         );
       }).join("");
+      grid.querySelectorAll(".work-launch").forEach(function (btn) {
+        btn.addEventListener("click", function () { launchLocal(btn.dataset.id, btn); });
+      });
     } catch (e) {
       grid.outerHTML = '<div class="empty-hint">作品清單暫時載入不了（後端服務離線）。</div>';
     }

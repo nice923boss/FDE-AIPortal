@@ -122,6 +122,17 @@ a:hover { text-decoration: underline; }
   background: var(--amber-soft); color: var(--amber); border-radius: 8px;
   padding: 4px 10px; font-size: 12px; font-weight: 700;
 }
+.badge-local {
+  align-self: flex-start; background: var(--teal-soft); color: var(--teal-dark);
+  border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 700;
+}
+.work-launch {
+  align-self: flex-start; border: 0; background: none; color: var(--teal);
+  font-size: 15px; font-weight: 700; cursor: pointer; padding: 0;
+}
+.work-launch:hover { text-decoration: underline; }
+.work-launch:disabled { color: var(--muted); cursor: default; text-decoration: none; }
+.work-local-hint { color: var(--muted); font-size: 13px; }
 .empty-hint { color: var(--muted); background: var(--card); border: 1px dashed var(--line); border-radius: 14px; padding: 28px; text-align: center; }
 
 /* ---------- forms / cards ---------- */
