@@ -232,13 +232,17 @@
     }
   }
 
+  function keyPlaceholder(me) {
+    if (me.has_key) return "已設定（尾碼 " + me.key_tail + "），輸入新值可更換";
+    if (me.pool_ready) return "未設定，目前自動使用系統共用金鑰";
+    return "尚未設定，貼上你的 nvapi- 開頭金鑰";
+  }
+
   async function initAccount() {
     if (!state.me) { requireLoginView("account-main"); return; }
     el("acc-email").value = state.me.email;
     el("acc-name").value = state.me.name;
-    el("acc-key").placeholder = state.me.has_key
-      ? "已設定（尾碼 " + state.me.key_tail + "），輸入新值可更換"
-      : "尚未設定，貼上你的 nvapi- 開頭金鑰";
+    el("acc-key").placeholder = keyPlaceholder(state.me);
 
     el("btn-save-profile").addEventListener("click", async function () {
       var msg = el("profile-msg");
@@ -260,10 +264,10 @@
         var data = await api("/api/me", { method: "PATCH", body: { nvidia_api_key: val } });
         state.me = data.me;
         el("acc-key").value = "";
-        el("acc-key").placeholder = data.me.has_key
-          ? "已設定（尾碼 " + data.me.key_tail + "），輸入新值可更換"
-          : "尚未設定，貼上你的 nvapi- 開頭金鑰";
-        msg.textContent = data.me.has_key ? "金鑰已儲存。" : "金鑰已清除。";
+        el("acc-key").placeholder = keyPlaceholder(data.me);
+        msg.textContent = data.me.has_key
+          ? "金鑰已儲存。"
+          : (data.me.pool_ready ? "金鑰已清除，改回使用系統共用金鑰。" : "金鑰已清除。");
         msg.className = "form-msg ok";
       } catch (e) {
         msg.textContent = e.message;

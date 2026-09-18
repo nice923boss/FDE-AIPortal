@@ -153,7 +153,7 @@
       renderGate("請先用右上角「使用 Google 帳戶登入」，登入後就能與夏以甯開始盤點。");
     } else if (!me.can_chat) {
       renderGate("目前無法使用，請聯絡管理者。");
-    } else if (!me.has_key) {
+    } else if (!me.has_key && !me.pool_ready) {
       renderGate("與夏以甯對話需要你自己的 NVIDIA API Key（免費申請），設定一次即可。",
         "前往帳號設定", "account.html");
     } else if (!conv) {
