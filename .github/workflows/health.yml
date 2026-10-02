@@ -1,0 +1,75 @@
+# H03：每 5 分鐘從外部檢查後端 /api/health，狀態改變（連不上、恢復）才推 ntfy，故障期間不重複洗版。
+# 需在 repo Settings > Secrets and variables > Actions 設 NTFY_TOPIC。
+# GitHub 排程忙碌時可能延遲數分鐘；公開 repo 連續 60 天沒有 commit 時排程會被停用，需到 Actions 頁重新啟用。
+name: 後端健康監控
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+
+concurrency:
+  group: health
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEALTH_URL: https://fde.cattravelworld.com/api/health
+    steps:
+      - id: probe
+        name: 檢查後端
+        run: |
+          for i in 1 2 3; do
+            body=$(curl -s -m 15 "$HEALTH_URL") &&
+              echo "$body" | python3 -c "import json,sys; sys.exit(0 if json.load(sys.stdin).get('ok') is True else 1)" 2>/dev/null &&
+              { echo "正常：$body"; echo "up=true" >> "$GITHUB_OUTPUT"; exit 0; }
+            [ "$i" = 3 ] || sleep 20
+          done
+          echo "連續 3 次失敗，最後回應：${body:0:300}"
+          echo "up=false" >> "$GITHUB_OUTPUT"
+
+      # 這一步有跑（success）代表本次異常；下一次執行靠它判斷上次狀態
+      - name: 後端異常
+        if: steps.probe.outputs.up == 'false'
+        run: echo "後端連不上"
+
+      - id: prev
+        name: 讀上次狀態
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/health.yml/runs?status=completed&per_page=1" --jq '.workflow_runs[0].id // empty')
+          down=false
+          if [ -n "$run_id" ]; then
+            c=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/jobs" --jq '[.jobs[].steps[] | select(.name == "後端異常") | .conclusion][0] // empty')
+            [ "$c" = "success" ] && down=true
+          fi
+          echo "上次異常：$down"
+          echo "down=$down" >> "$GITHUB_OUTPUT"
+
+      # up 與上次 down 相同即狀態改變：up=false 且上次正常（掛掉）、up=true 且上次異常（恢復）
+      - name: 推播通知
+        if: steps.probe.outputs.up == steps.prev.outputs.down
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          UP: ${{ steps.probe.outputs.up }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -n "$NTFY_TOPIC" ] || { echo "未設定 NTFY_TOPIC，略過推播"; exit 0; }
+          python3 - <<'EOF' | curl -s -H "Content-Type: application/json" --data-binary @- https://ntfy.sh/
+          import json, os
+          up = os.environ["UP"] == "true"
+          print(json.dumps({
+              "topic": os.environ["NTFY_TOPIC"],
+              "title": "夏以甯後端已恢復" if up else "夏以甯後端連不上",
+              "message": "外部健康檢查恢復正常。" if up else
+                         "外部健康檢查連續 3 次失敗（約 1 分鐘），會員目前無法使用。請檢查電腦、後端與 cloudflared。",
+              "tags": ["white_check_mark" if up else "rotating_light"],
+              "click": os.environ["RUN_URL"],
+          }, ensure_ascii=False))
+          EOF
