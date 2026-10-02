@@ -7,6 +7,10 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+    inputs:
+      url:
+        description: 測試用：填一個會失敗的網址可驗證「連不上」推播，留空則檢查正式後端
+        required: false
 
 permissions:
   actions: read
@@ -19,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      HEALTH_URL: https://fde.cattravelworld.com/api/health
+      HEALTH_URL: ${{ inputs.url || 'https://fde.cattravelworld.com/api/health' }}
     steps:
       - id: probe
         name: 檢查後端
